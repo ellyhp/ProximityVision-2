@@ -1,0 +1,172 @@
+================================================================
+  ObjectVision Pro v2 — Componentes y descripción del circuito
+================================================================
+
+Proyecto  : Sistema de detección de proximidad por vibración
+Plataforma: Arduino Nano + HC-SR04 + Motor vibrador
+Autor     : @ellygmr
+Video     : https://www.tiktok.com/@ellygmr/video/7645145178122177812
+Modelo 3D : https://makerworld.com/es/models/2861372-proximityvision
+
+----------------------------------------------------------------
+  COMPONENTES
+----------------------------------------------------------------
+
+1. ARDUINO NANO
+   ┌─────────────────────────────────────────────────────────┐
+   │ Microcontrolador principal del sistema                  │
+   │                                                         │
+   │ Función: procesa la señal del sensor ultrasónico,       │
+   │ calcula la distancia en cm y activa el motor vibrador   │
+   │ cuando detecta un objeto a menos de 100 cm.             │
+   │                                                         │
+   │ Especificaciones:                                        │
+   │   Microcontrolador : ATmega328P                         │
+   │   Voltaje operación: 5V                                 │
+   │   Voltaje entrada   : 7–12V (VIN) / 5V (USB)           │
+   │   Pines digitales  : 14 (6 con PWM)                    │
+   │   Pines analógicos : 8                                  │
+   │   Corriente por pin: 40 mA máx.                        │
+   │   Velocidad reloj  : 16 MHz                             │
+   │   Memoria Flash    : 32 KB                              │
+   │   SRAM             : 2 KB                               │
+   │   Dimensiones      : 45 x 18 mm                        │
+   │                                                         │
+   │ Pines usados en este proyecto:                          │
+   │   VIN  → alimentación desde MT3608 (5V)                │
+   │   GND  → tierra común del circuito                     │
+   │   D9   → señal TRIG al sensor HC-SR04                  │
+   │   D10  → señal ECHO del sensor HC-SR04                 │
+   │   D3   → control del motor vibrador (PWM)              │
+   └─────────────────────────────────────────────────────────┘
+
+
+2. SENSOR ULTRASÓNICO HC-SR04
+   ┌─────────────────────────────────────────────────────────┐
+   │ Sensor de distancia sin contacto por ultrasonido        │
+   │                                                         │
+   │ Función: emite pulsos de sonido a 40 kHz y mide el     │
+   │ tiempo que tarda el eco en regresar. El Arduino         │
+   │ convierte ese tiempo en distancia (cm) usando la        │
+   │ velocidad del sonido (0.034 cm/µs).                     │
+   │                                                         │
+   │ Especificaciones:                                        │
+   │   Voltaje operación : 5V DC                             │
+   │   Corriente trabajo : 15 mA                             │
+   │   Frecuencia        : 40 kHz                            │
+   │   Rango detección   : 2 cm – 400 cm                    │
+   │   Precisión         : ±3 mm                             │
+   │   Ángulo efectivo   : 15°                               │
+   │   Pulso trigger     : mínimo 10 µS en alto             │
+   │   Dimensiones       : 45 x 20 x 15 mm                  │
+   │                                                         │
+   │ Pines:                                                   │
+   │   VCC  → 5V (desde MT3608 vía Arduino)                 │
+   │   TRIG → D9 del Arduino (envía el pulso)               │
+   │   ECHO → D10 del Arduino (recibe el eco)               │
+   │   GND  → tierra común                                  │
+   └─────────────────────────────────────────────────────────┘
+
+
+3. ELEVADOR DE VOLTAJE MT3608 — Step Up Boost 2-24V
+   ┌─────────────────────────────────────────────────────────┐
+   │ Convertidor DC-DC de tipo elevador (boost)              │
+   │                                                         │
+   │ Función: toma los 3.7V de la batería LiPo y los eleva  │
+   │ a 5V regulados para alimentar el Arduino Nano y el      │
+   │ sensor HC-SR04, que no pueden operar correctamente a    │
+   │ voltajes menores. La salida se ajusta con el            │
+   │ potenciómetro integrado.                                │
+   │                                                         │
+   │ Especificaciones:                                        │
+   │   Voltaje entrada   : 2V – 24V DC                      │
+   │   Voltaje salida    : 5V – 28V DC (ajustable)          │
+   │   Corriente salida  : 2A máx.                          │
+   │   Eficiencia        : 93% máx.                         │
+   │   Frecuencia trabajo: 1.2 MHz                          │
+   │   Protección térmica: Sí                               │
+   │   Protección corto  : No                               │
+   │   Dimensiones       : 36 x 17 x 7 mm                  │
+   │   Peso              : 5 g                              │
+   │                                                         │
+   │ Ajuste de voltaje:                                      │
+   │   Girar potenciómetro en sentido antihorario sube       │
+   │   el voltaje. Ajustar a 5V antes de conectar carga.    │
+   └─────────────────────────────────────────────────────────┘
+
+
+4. BATERÍA LIPO 3.7V 850mAh
+   ┌─────────────────────────────────────────────────────────┐
+   │ Fuente de alimentación principal del sistema            │
+   │                                                         │
+   │ Función: alimenta todo el circuito de forma portable.   │
+   │ Su voltaje nominal de 3.7V es elevado a 5V por el       │
+   │ módulo MT3608 para el correcto funcionamiento del        │
+   │ Arduino y el sensor.                                    │
+   │                                                         │
+   │ Especificaciones:                                        │
+   │   Tipo              : Litio polímero (LiPo) recargable  │
+   │   Voltaje nominal   : 3.7V                              │
+   │   Capacidad         : 850 mAh                           │
+   │   Nº parte fabric.  : 660-477                           │
+   │   Conector          : JST-PH 2 pines                   │
+   │   Protección        : sobrevoltaje, sobrecorriente      │
+   │                       y voltaje mínimo integradas       │
+   │   Dimensiones aprox.: 48 x 30 x 6 mm                  │
+   │                                                         │
+   │ Notas:                                                   │
+   │   - Cargar con módulo TP4056 o similar                  │
+   │   - No invertir polaridad (sin protección en MT3608)   │
+   │   - Voltaje mínimo de descarga: ~3.0V                  │
+   └─────────────────────────────────────────────────────────┘
+
+
+5. MOTOR VIBRADOR (3V)
+   ┌─────────────────────────────────────────────────────────┐
+   │ Actuador háptico de alerta al usuario                   │
+   │                                                         │
+   │ Función: vibra cuando el sistema detecta un objeto a    │
+   │ menos de 100 cm (ajustable). Proporciona retroalimen-   │
+   │ tación discreta sin necesidad de audio ni pantalla.     │
+   │ Ideal para uso en lentes o dispositivos wearables.      │
+   │                                                         │
+   │ Especificaciones típicas:                               │
+   │   Tipo              : Motor de vibración DC             │
+   │   Voltaje operación : 3V (tolera hasta 5V)             │
+   │   Corriente         : ~80 mA a 3V                      │
+   │   Conexión          : directo al pin D3 del Arduino     │
+   │                                                         │
+   │ Nota: el pin D3 del Arduino entrega hasta 40 mA.       │
+   │ Para motores de mayor consumo se recomienda agregar     │
+   │ un transistor NPN (ej. 2N2222) como etapa de potencia. │
+   └─────────────────────────────────────────────────────────┘
+
+
+----------------------------------------------------------------
+  CONEXIONES RESUMIDAS
+----------------------------------------------------------------
+
+  LiPo 3.7V (+) ──→ MT3608 IN+
+  LiPo 3.7V (−) ──→ MT3608 IN−  (GND común)
+
+  MT3608 OUT+ (5V) ──→ Arduino Nano VIN
+                   ──→ HC-SR04 VCC
+
+  Arduino D9   ──→ HC-SR04 TRIG
+  Arduino D10  ──→ HC-SR04 ECHO
+  Arduino D3   ──→ Motor vibrador (+)
+
+  GND común: MT3608 − / Arduino GND / HC-SR04 GND / Motor −
+
+----------------------------------------------------------------
+  UMBRAL DE DISTANCIA (ajustable en el código)
+----------------------------------------------------------------
+
+  100 cm  →  detección general (valor por defecto)
+   30 cm  →  espacios reducidos, navegación cercana
+   10 cm  →  máxima precisión, objetos muy próximos
+
+  Línea a modificar en objectvision_pro.ino:
+    if (distancia <= 100)   ← cambiar 100 por el valor deseado
+
+================================================================
